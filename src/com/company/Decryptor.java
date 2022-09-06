@@ -49,17 +49,54 @@ public class Decryptor {
             List<Map.Entry<Character, List<Integer>>> topN = frequencies.entrySet().stream()
                     .sorted((l1, l2) -> -1 * Integer.compare(l1.getValue().get(finalI), l2.getValue().get(finalI)))
                     .limit(10).collect(Collectors.toList());
-            System.out.println("\nTop 10 choices for letter number " + (i+1) + " are:");
+            System.out.println("\nTop 10 choices for letter number " + (i + 1) + " are:");
 
-            for (Map.Entry<Character, List<Integer>> entry: topN){
+            for (Map.Entry<Character, List<Integer>> entry : topN) {
                 char cur = entry.getKey();
                 int subtracted = (cur - 97);
-                char decrypted = (char) ((improvedMod(subtracted - length , 26)) + 97);
+                char decrypted = (char) ((improvedMod(subtracted - ('i' - 97), 26)) + 97);
                 System.out.print(decrypted + ": " + entry.getValue().get(i) + " times, ");
             }
         }
 
     }
+
+    public static String encrypt(String text, String key){
+        text = text.toLowerCase();
+        key = key.toLowerCase();
+        String generated = generateKey(text, key);
+        String result = "";
+        for (int i = 0; i < text.length(); i++) {
+            char cur = text.charAt(i);
+            char encrypted = (char) (((cur - 97 + generated.charAt(i) - 97) % 26) + 97);
+            result += encrypted;
+        }
+        return result;
+    }
+
+    public static String decrypt(String text, String key){
+        text = text.toLowerCase();
+        key = key.toLowerCase();
+        String generated = generateKey(text, key);
+        String result = "";
+        for (int i = 0; i < text.length(); i++) {
+            char cur = text.charAt(i);
+            char curGen = generated.charAt(i);
+            int subtracted = (cur - 97) - (curGen - 97);
+            char encrypted = (char) ((improvedMod(subtracted, 26)) + 97);
+            result += encrypted;
+        }
+        return result;
+    }
+
+    private static String generateKey(String text, String key){
+        String finalResult = "";
+        for (int i = 0; i < text.length(); i++) {
+            finalResult += key.charAt(i % key.length());
+        }
+        return finalResult;
+    }
+
     private static int improvedMod(int a, int b) {
         int c = a % b;
         return (c < 0) ? c + b : c;
